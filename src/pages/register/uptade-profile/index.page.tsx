@@ -11,7 +11,6 @@ import {
   MultiStep,
   Text,
   TextArea,
-  TextInput,
 } from "@ignite-ui/react";
 import { ArrowRight } from "phosphor-react";
 import { buildNextAuthOptions } from "@/pages/api/auth/[...nextauth].api";

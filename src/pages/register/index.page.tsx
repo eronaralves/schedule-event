@@ -50,7 +50,7 @@ export default function Register() {
     if (router.query?.username) {
       setValue("username", String(router.query?.username));
     }
-  }, [router.query?.username]);
+  }, [router.query?.username, setValue]);
 
   async function handleRegister(data: RegisterFormData) {
     try {
@@ -86,8 +86,10 @@ export default function Register() {
         <Form as="form" onSubmit={handleSubmit(handleRegister)}>
           <label htmlFor="username">
             <Text size="sm">Nome de usúario</Text>
-            <TextInput
+            {/* @ts-ignore */}
+            <TextInput          
               id="username"
+              type="text"
               prefix="ignite.com/"
               placeholder="seu-usuario"
               {...register("username")}
@@ -99,7 +101,8 @@ export default function Register() {
 
           <label htmlFor="name">
             <Text size="sm">Nome completo</Text>
-            <TextInput id="name" placeholder="Seu nome" {...register("name")} />
+            {/* @ts-ignore */}
+            <TextInput  disabled={false} placeholder="Seu nome" {...register("name")} />
             {errors.name && (
               <FormError size="sm">{errors.name.message}</FormError>
             )}

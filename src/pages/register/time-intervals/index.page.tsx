@@ -148,6 +148,7 @@ export default function TimeIntervals() {
                   <Text>{weekdays[field.weekDay]}</Text>
                 </IntervalDay>
                 <IntervalInputs>
+                  {/* @ts-ignore */}
                   <TextInput
                     size="sm"
                     type="time"
@@ -155,6 +156,7 @@ export default function TimeIntervals() {
                     step={60}
                     {...register(`intervals.${index}.startTime`)}
                   />
+                  {/* @ts-ignore */}
                   <TextInput
                     size="sm"
                     type="time"

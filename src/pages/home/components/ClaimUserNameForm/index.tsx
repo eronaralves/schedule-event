@@ -42,6 +42,7 @@ export function ClaimUserNameForm() {
   return (
     <>
       <Form as="form" onSubmit={handleSubmit(handleClaimRegister)}>
+        {/* @ts-ignore */}
         <TextInput
           size="sm"
           placeholder="seu-usuario"

@@ -71,12 +71,14 @@ export function ConfirmStep({
 
       <label>
         <Text size="sm">Nome completo</Text>
+        {/* @ts-ignore */}
         <TextInput placeholder="Seu nome" {...register("name")} />
         {errors.name && <FormError size="sm">{errors.name.message}</FormError>}
       </label>
 
       <label>
         <Text size="sm">Endereço de e-mail</Text>
+        {/* @ts-ignore */}
         <TextInput
           type="email"
           placeholder="jonh@example.com"
