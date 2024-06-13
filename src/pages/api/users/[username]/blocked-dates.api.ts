@@ -4,27 +4,27 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
-  if(req.method !== 'GET') {
-    return res.status(405).end()
+  if (req.method !== "GET") {
+    return res.status(405).end();
   }
 
-  const username = String(req.query.username)
-  const { year, month } = req.query
+  const username = String(req.query.username);
+  const { year, month } = req.query;
 
-  if(!year || !month) {
-    return res.status(400).json({ message: 'Year or Month not specified.' })
+  if (!year || !month) {
+    return res.status(400).json({ message: "Year or Month not specified." });
   }
 
   const user = await prisma.user.findUnique({
     where: {
-      username
-    }
-  })
+      username,
+    },
+  });
 
-  if(!user) {
-    return res.status(400).json({ message: 'User does not exist.' })
+  if (!user) {
+    return res.status(400).json({ message: "User does not exist." });
   }
 
   const availableWeekDays = await prisma.userTimeInterval.findMany({
@@ -32,13 +32,15 @@ export default async function handler(
       week_day: true,
     },
     where: {
-      user_id: user.id
-    }
-  })
+      user_id: user.id,
+    },
+  });
 
-  const blockedWeekDays = [0, 1, 2, 3, 4, 5, 6].filter(weekDay => {
-    return !availableWeekDays.some(availableWeekDay => availableWeekDay.week_day === weekDay)
-  })
+  const blockedWeekDays = [0, 1, 2, 3, 4, 5, 6].filter((weekDay) => {
+    return !availableWeekDays.some(
+      (availableWeekDay) => availableWeekDay.week_day === weekDay,
+    );
+  });
 
   const blockedDatesRaw: Array<{ date: number }> = await prisma.$queryRaw`
   SELECT
@@ -60,9 +62,9 @@ export default async function handler(
 
   HAVING
     COUNT(S.date) >= ((UTI.time_end_in_minutes - UTI.time_start_in_minutes) / 60);
-`
-  
-  const blockedDates = blockedDatesRaw.map(item => item.date)
+`;
 
-  return res.json({ blockedWeekDays, blockedDates })
+  const blockedDates = blockedDatesRaw.map((item) => item.date);
+
+  return res.json({ blockedWeekDays, blockedDates });
 }

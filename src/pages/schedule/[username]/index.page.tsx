@@ -12,15 +12,13 @@ interface ScheduleProps {
     name: string;
     bio: string;
     avatarUrl: string;
-  }
+  };
 }
 
 export default function Schedule({ user }: ScheduleProps) {
   return (
     <>
-      <NextSeo
-        title={`Agendar com ${user.name} | Calendar`}
-      />
+      <NextSeo title={`Agendar com ${user.name} | Calendar`} />
       <Container>
         <UserHeader>
           <Avatar src={user.avatarUrl} />
@@ -31,39 +29,39 @@ export default function Schedule({ user }: ScheduleProps) {
         <ScheduleForm />
       </Container>
     </>
-  )
+  );
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
   return {
     paths: [],
-    fallback: 'blocking'
-  }
-}
+    fallback: "blocking",
+  };
+};
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const username = String(params?.username)
+  const username = String(params?.username);
 
   const user = await prisma.user.findUnique({
     where: {
-      username
+      username,
     },
-  })
+  });
 
-  if(!user) {
+  if (!user) {
     return {
-      notFound: true
-    }
+      notFound: true,
+    };
   }
-  
+
   return {
     props: {
       user: {
         name: user.name,
         bio: user.bio,
-        avatarUrl: user.avatar_url
-      }
+        avatarUrl: user.avatar_url,
+      },
     },
-    revalidate: 60 * 60 * 24 // 1 day
-  }
-}
+    revalidate: 60 * 60 * 24, // 1 day
+  };
+};

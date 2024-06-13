@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { z } from 'zod'
+import { z } from "zod";
 import dayjs from "dayjs";
 import { NextApiRequest, NextApiResponse } from "next";
 import { google } from "googleapis";
@@ -7,22 +7,22 @@ import { getGoogleOAuthToken } from "@/lib/google";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
-  if(req.method !== 'POST') {
-    return res.status(405).end()
+  if (req.method !== "POST") {
+    return res.status(405).end();
   }
 
-  const username = String(req.query.username) 
+  const username = String(req.query.username);
 
   const user = await prisma.user.findUnique({
     where: {
-      username
-    }
-  })
+      username,
+    },
+  });
 
-  if(!user) {
-    return res.status(400).json({ message: 'User does not exist.' })
+  if (!user) {
+    return res.status(400).json({ message: "User does not exist." });
   }
 
   const createSchedulingBody = z.object({
@@ -30,29 +30,31 @@ export default async function handler(
     email: z.string().email(),
     observations: z.string(),
     date: z.string().datetime(),
-  })
+  });
 
-  const { name, email, observations, date } = createSchedulingBody.parse(req.body)
+  const { name, email, observations, date } = createSchedulingBody.parse(
+    req.body,
+  );
 
-  const schudelingDate = dayjs(date).startOf('hour')
+  const schudelingDate = dayjs(date).startOf("hour");
 
-  if(schudelingDate.isBefore(new Date())) {
+  if (schudelingDate.isBefore(new Date())) {
     return res.status(400).json({
-      message: 'Date is in the past.'
-    })
+      message: "Date is in the past.",
+    });
   }
 
   const conflictingScheduling = await prisma.scheduling.findFirst({
     where: {
       user_id: user.id,
-      date: schudelingDate.toDate()
-    }
-  })
+      date: schudelingDate.toDate(),
+    },
+  });
 
-  if(conflictingScheduling) {
+  if (conflictingScheduling) {
     return res.status(400).json({
-      message: 'There is another schudeling at the same time.'
-    })
+      message: "There is another schudeling at the same time.",
+    });
   }
 
   const scheduling = await prisma.scheduling.create({
@@ -61,17 +63,17 @@ export default async function handler(
       email,
       name,
       observations,
-      user_id: user.id
-    }
-  })
+      user_id: user.id,
+    },
+  });
 
   const calendar = google.calendar({
-    version: 'v3',
-    auth: await getGoogleOAuthToken(user.id)
-  })
+    version: "v3",
+    auth: await getGoogleOAuthToken(user.id),
+  });
 
   await calendar.events.insert({
-    calendarId: 'primary',
+    calendarId: "primary",
     conferenceDataVersion: 1,
     requestBody: {
       summary: `Ignite Call: ${name}`,
@@ -80,21 +82,19 @@ export default async function handler(
         dateTime: schudelingDate.format(),
       },
       end: {
-        dateTime: schudelingDate.add(1, 'hour').format()
+        dateTime: schudelingDate.add(1, "hour").format(),
       },
-      attendees: [
-        { email, displayName: name }
-      ],
+      attendees: [{ email, displayName: name }],
       conferenceData: {
         createRequest: {
           requestId: scheduling.id,
           conferenceSolutionKey: {
-            type: 'hangoutsMeet',
+            type: "hangoutsMeet",
           },
         },
       },
     },
-  })
+  });
 
-  return res.status(200).end()
+  return res.status(200).end();
 }

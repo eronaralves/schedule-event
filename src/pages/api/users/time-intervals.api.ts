@@ -9,43 +9,43 @@ const timeIntervalBodySchema = z.object({
     z.object({
       weekDay: z.number(),
       startTimeInMinutes: z.number(),
-      endTimeInMinutes: z.number()
-    })
-  )
-})
+      endTimeInMinutes: z.number(),
+    }),
+  ),
+});
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
-
-  if(req.method !== 'POST') {
-    return res.status(405).end()
+  if (req.method !== "POST") {
+    return res.status(405).end();
   }
 
   const session = await getServerSession(
-    req, 
-    res, 
-    buildNextAuthOptions(req, res)
-  )
+    req,
+    res,
+    buildNextAuthOptions(req, res),
+  );
 
-  if(!session) {
-    return res.status(401).end()
+  if (!session) {
+    return res.status(401).end();
   }
 
-  const { intervals } = timeIntervalBodySchema.parse(req.body)
+  const { intervals } = timeIntervalBodySchema.parse(req.body);
 
-  await Promise.all(intervals.map(interval => {
-    return prisma.userTimeInterval.create({
-      data: {
-        week_day: interval.weekDay,
-        time_end_in_minutes: interval.endTimeInMinutes,
-        time_start_in_minutes: interval.startTimeInMinutes,
-        user_id: session.user?.id
-      }
-    })
-  }))
+  await Promise.all(
+    intervals.map((interval) => {
+      return prisma.userTimeInterval.create({
+        data: {
+          week_day: interval.weekDay,
+          time_end_in_minutes: interval.endTimeInMinutes,
+          time_start_in_minutes: interval.startTimeInMinutes,
+          user_id: session.user?.id,
+        },
+      });
+    }),
+  );
 
-
-  return res.status(201).end()
+  return res.status(201).end();
 }

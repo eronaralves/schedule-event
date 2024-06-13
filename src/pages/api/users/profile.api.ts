@@ -5,39 +5,37 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 
 const uptadeProfileBodySchema = z.object({
-  bio: z.string()
-})
+  bio: z.string(),
+});
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
-
-  if(req.method !== 'PUT') {
-    return res.status(405).end()
+  if (req.method !== "PUT") {
+    return res.status(405).end();
   }
 
   const session = await getServerSession(
-    req, 
-    res, 
-    buildNextAuthOptions(req, res)
-  )
+    req,
+    res,
+    buildNextAuthOptions(req, res),
+  );
 
-  if(!session) {
-    return res.status(401).end()
+  if (!session) {
+    return res.status(401).end();
   }
 
-  const { bio } = uptadeProfileBodySchema.parse(req.body)
+  const { bio } = uptadeProfileBodySchema.parse(req.body);
 
   await prisma.user.update({
     where: {
-      id: session.user.id
+      id: session.user.id,
     },
     data: {
-      bio
-    }
-  })
+      bio,
+    },
+  });
 
-
-  return res.status(204).end()
+  return res.status(204).end();
 }
